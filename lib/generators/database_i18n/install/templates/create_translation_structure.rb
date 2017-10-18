@@ -24,7 +24,7 @@ class CreateTranslationStructure < ActiveRecord::Migration[5.1]
 
   def create_translation_values
     create_table :translation_values do |t|
-      t.belongs_to :translation_key
+      t.belongs_to :key
 
       t.timestamps
     end

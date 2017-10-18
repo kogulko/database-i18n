@@ -6,6 +6,6 @@ module DatabaseI18n
 
     attribute :body
 
-    belongs_to :key, class_name: 'DatabaseI18n::Key', foreign_key: 'translation_key_id', touch: true
+    belongs_to :key, class_name: 'DatabaseI18n::Key', touch: true
   end
 end
