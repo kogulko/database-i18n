@@ -6,6 +6,6 @@ module DatabaseI18n
 
     acts_as_nested_set dependent: :destroy, counter_cache: :children_count
 
-    has_one :translation, class_name: 'DatabaseI18n::Value', dependent: :destroy
+    has_one :value, class_name: 'DatabaseI18n::Value', dependent: :destroy
   end
 end
