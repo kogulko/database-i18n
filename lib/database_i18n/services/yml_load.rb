@@ -7,8 +7,6 @@ module DatabaseI18n
     end
 
     class YmlLoad
-      attr_accessor :locale
-
       def self.load_translations
         if DatabaseI18n::Key.table_exists?
           ActiveRecord::Base.transaction do
@@ -25,6 +23,7 @@ module DatabaseI18n
                 Rails.cache.delete_matched('translations/*')
               end
             end
+            remove_empty_translations
           end
         end
       end
@@ -35,7 +34,9 @@ module DatabaseI18n
         obj.each do |key, value|
           if value.is_a? String
             t = parent.children.find_or_create_by(name: key)
-            t.create_translation!(locale: locale, body: value)
+            t.create_value unless t.value
+            I18n.locale = locale
+            t.value.update(body: value)
           elsif value.is_a? Hash
             if parent.nil?
               nested_translations_tree(value, locale, DatabaseI18n::Key.roots.find_or_create_by!(name: key))
@@ -53,11 +54,18 @@ module DatabaseI18n
           begin schema.deep_fetch(*path)
             # Everything is OK
           rescue LocalJumpError
-            leaf.transaction.translations.find_by(locale: locale).destroy
-            puts "Translation on path '#{path.join('.')}' was destroyed"
+            translation = leaf.value.translations.find_by(locale: locale)
+            next unless translation
+            puts "Translation #{translation.body} on path '#{path.join('.')}'  with locale '#{locale}' was destroyed"
+            translation.destroy
             remove_old_fields(schema, locale)
           end
         end
+      end
+
+      def self.remove_empty_translations
+        DatabaseI18n::Key.leaves.left_joins(value: :translations).group('translation_keys.id').
+          having('COUNT(translation_value_translations.translation_value_id) = 0').destroy_all
       end
     end
   end
