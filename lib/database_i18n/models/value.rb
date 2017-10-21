@@ -7,5 +7,7 @@ module DatabaseI18n
     attribute :body
 
     belongs_to :key, class_name: 'DatabaseI18n::Key', touch: true
+
+    delegate :path, to: :key
   end
 end
