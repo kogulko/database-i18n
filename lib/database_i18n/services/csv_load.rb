@@ -27,7 +27,7 @@ module DatabaseI18n
               raise ArgumentError.new, "Key #{line[:key]} does not exist!" unless current
             end
             next if current.children.any?
-            line.except(:id, :key).each do |key, value|
+            line.except(:key).each do |key, value|
               if I18n.available_locales.include?(key.to_sym)
                 current.create_translation unless current.translation
 
@@ -47,7 +47,7 @@ module DatabaseI18n
 
       def self.export(csv)
 
-        headers = %w{id key}
+        headers = %w{key}
         headers += I18n.available_locales
 
         csv << headers
@@ -56,7 +56,7 @@ module DatabaseI18n
           I18n.available_locales.each do |locale|
             values << t.translations.find_by_locale(locale)&.body
           end
-          csv << [ t.id, t.path, *values]
+          csv << [ t.path, *values]
         end
       end
     end
