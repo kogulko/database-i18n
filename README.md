@@ -1,41 +1,58 @@
 # DatabaseI18n
+## Getting started
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/database_i18n`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
-## Installation
-
-Add this line to your application's Gemfile:
+DatabaseI18n works with Rails 5.1 onwards. You can add it to your Gemfile with:
 
 ```ruby
-gem 'database_i18n'
+gem 'database_i18n', git: 'https://github.com/kogulko/database-i18n'
 ```
 
-And then execute:
+Then run `bundle install`
 
-    $ bundle
+Next, you need to run the generator:
 
-Or install it yourself as:
+```console
+$ rails generate database_i18n:install
+```
+After that, you will have generated migration and initializer files
+ `config/initializers/database_i18n.rb`:
+ ```ruby
+DatabaseI18n::Value.translates :body, :fallbacks_for_empty_translations => true 
+```
+ This file contain information about column, which store translation value. So, if you want to change translation value column name in migration, you also need to change column name in initializer file.
 
-    $ gem install database_i18n
+Then run `rails db:migrate`
 
-## Usage
+## Translations Import/Export
+### 1. Import from yml files
+ Strore your files with translations in `config/database_i18n/` folder. For example:
+ `config/database_i18n/en.yml`:
+ ```yaml
+ test:
+  hello: 'Hello!'
+ ```
+ Then run `rake database_i18n:yml_load_translations`. 
+ ### 2. Import from csv files
+ Store your translations in csv files. Use next format:
 
-TODO: Write usage instructions here
+| key                  | en               | ru                 | 
+|----------------------|------------------|--------------------| 
+| profile.nav.settings | Profile Settings |  Настройки профиля | 
+| main.header.about_us | About us         |  О нас             |
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/database_i18n. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
-
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
+Then run `rake database_i18n:csv_import_translations[path]`, where `path` is your csv file location.
+ ### 3. Export to csv csv file
+ Run `rake database_i18n:csv_export_translations`. This task will create a file in the above format.
+  ## Helpers
+  1. You can take all your translations in JSON format. Use `DatabaseI18n::TranslationsHelper.translations_tree ` method.
+  2. Also you can find translations by keys combination. For example you have such translations:
+       ```yaml
+     test
+         hello: 'Hello!'
+         my_name: 'My name is %{name}'
+     ```
+     Use `DatabaseI18n::TranslationsHelper.find_by_key ` method:
+     ```ruby
+     DatabaseI18n::TranslationsHelper.find_by_key('test.hello') #=> Hello!
+     DatabaseI18n::TranslationsHelper.find_by_key('test.my_name', name: 'Alex') #=> My name is Alex
+     ```
