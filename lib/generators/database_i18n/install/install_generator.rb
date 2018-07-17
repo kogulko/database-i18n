@@ -24,6 +24,7 @@ module DatabaseI18n
       def create_initializer_file
         create_file "config/initializers/database_i18n.rb", <<-FILE
           DatabaseI18n::Value.translates :body, :fallbacks_for_empty_translations => true
+          DatabaseI18n::Value.globalize_accessors
         FILE
       end
     end

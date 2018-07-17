@@ -36,5 +36,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", "~> 5.1"
   spec.add_dependency "awesome_nested_set"
   spec.add_dependency "globalize", '~> 5.1.0.beta2'
+  spec.add_dependency "globalize-accessors"
   spec.add_dependency "pg"
 end
