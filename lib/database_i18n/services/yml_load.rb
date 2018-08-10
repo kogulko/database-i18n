@@ -8,23 +8,21 @@ module DatabaseI18n
 
     class YmlLoad
       def self.load_translations
-        if DatabaseI18n::Key.table_exists?
-          ActiveRecord::Base.transaction do
-            I18n.available_locales.each do |locale|
-              file = Pathname.new([Rails.root, 'config', 'database_i18n', "#{locale}.yml"].join('/'))
-              if file.exist?
-                schema = YAML.load(ERB.new(file.read).result)
+        ActiveRecord::Base.transaction do
+          I18n.available_locales.each do |locale|
+            file = Pathname.new([Rails.root, 'config', 'database_i18n', "#{locale}.yml"].join('/'))
+            if file.exist?
+              schema = YAML.load(ERB.new(file.read).result)
 
-                schema.extend(DeepFetch)
+              schema.extend(DeepFetch)
 
-                nested_translations_tree(schema, locale)
-                remove_old_fields(schema, locale)
+              nested_translations_tree(schema, locale)
+              remove_old_fields(schema, locale)
 
-                Rails.cache.delete_matched('translations/*')
-              end
+              Rails.cache.delete_matched('translations/*')
             end
-            remove_empty_translations
           end
+          remove_empty_translations
         end
       end
 
