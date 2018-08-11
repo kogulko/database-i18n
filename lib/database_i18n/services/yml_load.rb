@@ -52,6 +52,10 @@ module DatabaseI18n
           begin schema.deep_fetch(*path)
             # Everything is OK
           rescue LocalJumpError
+            unless leaf.value
+              leaf.destroy
+              break
+            end
             translation = leaf.value.translations.find_by(locale: locale)
             next unless translation
             puts "Translation #{translation.body} on path '#{path.join('.')}'  with locale '#{locale}' was destroyed"
